@@ -277,6 +277,7 @@ class EmailTemplateResource extends Resource
     {
         if ($data['logo_type'] == "paste_url" && $data['logo_url']) {
             $data['logo'] = $data['logo_url'];
+            unset($data['logo_url']);
         }
         unset($data['logo_type']);
         return $data;
