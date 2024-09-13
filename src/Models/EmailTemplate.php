@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Visualbuilder\EmailTemplates\Database\Factories\EmailTemplateFactory;
 use Visualbuilder\EmailTemplates\Facades\TokenHelper;
+use Illuminate\Support\Facades\Storage;
 
 
 /**
@@ -276,7 +277,8 @@ class EmailTemplate extends Model
         $logo = $this->attributes['logo'] ?? config('filament-email-templates.logo');
 
         // Return the logo if it's a full URL, otherwise, return the asset URL.
-        return Str::isUrl($logo) ? $logo : asset($logo);
+
+        return Str::isUrl($logo) ? $logo : Storage::url($logo);
     }
 
 }
