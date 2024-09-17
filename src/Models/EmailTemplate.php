@@ -15,6 +15,7 @@ use Visualbuilder\EmailTemplates\Database\Factories\EmailTemplateFactory;
 use Visualbuilder\EmailTemplates\Facades\TokenHelper;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\App;
 
 
 /**
@@ -90,13 +91,12 @@ class EmailTemplate extends Model
         // When an email template is updated
         static::updated(function ($template) {
             self::clearEmailTemplateCache($template->key, $template->language);
-            self::optimize();
+            self::cacheEmailByKey($template, $template->key, App::currentLocale());
         });
 
         // When an email template is deleted
         static::deleted(function ($template) {
             self::clearEmailTemplateCache($template->key, $template->language);
-            self::optimize();
         });
     }
 
@@ -124,9 +124,8 @@ class EmailTemplate extends Model
         Cache::forget($cacheKey);
     }
 
-    public static function optimize(){
-        Artisan::call('optimize:clear');
-        Artisan::call('optimize');
+    public static function cacheEmailByKey($template, $key, $language = null){
+        cache(["email_by_key_{$key}_{$language}" => $template]);
     }
 
     /**
