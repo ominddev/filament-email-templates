@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Visualbuilder\EmailTemplates\Database\Factories\EmailTemplateFactory;
 use Visualbuilder\EmailTemplates\Facades\TokenHelper;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
 
 
 /**
@@ -89,11 +90,13 @@ class EmailTemplate extends Model
         // When an email template is updated
         static::updated(function ($template) {
             self::clearEmailTemplateCache($template->key, $template->language);
+            self::optimize();
         });
 
         // When an email template is deleted
         static::deleted(function ($template) {
             self::clearEmailTemplateCache($template->key, $template->language);
+            self::optimize();
         });
     }
 
@@ -119,6 +122,11 @@ class EmailTemplate extends Model
     {
         $cacheKey = "email_by_key_{$key}_{$language}";
         Cache::forget($cacheKey);
+    }
+
+    public static function optimize(){
+        Artisan::call('optimize:clear');
+        Artisan::call('optimize');
     }
 
     /**
@@ -278,7 +286,7 @@ class EmailTemplate extends Model
 
         // Return the logo if it's a full URL, otherwise, return the asset URL.
 
-        return Str::isUrl($logo) ? $logo : Storage::url($logo);
+        return Str::isUrl($logo) ? $logo : Storage::disk(config('filament.default_filesystem_disk'))->url($logo);
     }
 
 }
