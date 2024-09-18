@@ -52,8 +52,13 @@ class EditEmailTemplate extends EditRecord
         $sortedData = $emailTemplateResource->handleLogo($data);
 
         // deleting previous logo
-        if ($record->logo != $sortedData['logo']) {
-            $emailTemplateResource->handleLogoDelete($record->logo);
+        if(isset($sortedData['logo'])){
+            if ($record->logo != $sortedData['logo']) {
+                $emailTemplateResource->handleLogoDelete($record->logo);
+            }
+        }
+        else{
+            unset($sortedData['logo_url']);
         }
 
         $record->update($sortedData);
